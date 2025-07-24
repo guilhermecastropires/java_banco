@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Conta {
@@ -97,9 +98,11 @@ public class Conta {
         }
     }
 
-    public void transferir(int idDestinatario, double valor, ArrayList<Conta> contas) {
+    public void transferir(int idDestinatario, double valor, ArrayList<Conta> contas, ArrayList<Transferencia> transferencias, int idTransferencia) {
         sacar(valor);
         contas.get(idDestinatario - 1).depositar(valor);
+        Transferencia transferencia = new Transferencia(valor, idDestinatario, id, LocalDateTime.now(), idTransferencia);
+        transferencias.add(transferencia);
     }
 
     public boolean podeTransferir(int idDestinatario, double valor, ArrayList<Conta> contas) {

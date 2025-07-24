@@ -1,18 +1,23 @@
 package main;
 
 import model.Conta;
+import model.Transferencia;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 
 public class Program {
     public static void main(String[] args) {
         ArrayList<Conta> contas = new ArrayList<>();
+        ArrayList<Transferencia> transferencias = new ArrayList<>();
         Scanner sc = new Scanner(System.in);
-        int idLogado = -1;
+        int indiceLogado = -1;
+        int idTransferencias = 0;
 
         while (true) {
-            while (idLogado == -1) {
+            while (indiceLogado == -1) {
                 System.out.println();
                 System.out.println("Bem Vindo ao Bank Master Pro, seu banco digital!");
                 System.out.println("1 - Criar conta");
@@ -61,7 +66,7 @@ public class Program {
                                    if (contas.get(i).getCpf().equals(cpf)) {
                                        if (contas.get(i).getSenha().equals(senha1)) {
                                            System.out.println("Logado com sucesso!");
-                                           idLogado = i;
+                                           indiceLogado = i;
                                            logado = true;
                                            break;
                                        }
@@ -83,37 +88,38 @@ public class Program {
                 }
             }
 
-            while (idLogado != -1) {
+            while (indiceLogado != -1) {
                 System.out.println();
-                System.out.println("Bem Vindo a sua conta, " + contas.get(idLogado).getNome() );
+                System.out.println("Bem Vindo a sua conta, " + contas.get(indiceLogado).getNome() );
                 System.out.println("1 - Informações da conta");
                 System.out.println("2 - Consultar saldo");
                 System.out.println("3 - Depositar");
                 System.out.println("4 - Sacar");
                 System.out.println("5 - Transferir");
-                System.out.println("6 - Sair da conta");
-                System.out.println("7 - Excluir conta");
+                System.out.println("6 - Listar Minhas Transferencias");
+                System.out.println("7 - Sair da conta");
+                System.out.println("8 - Excluir conta");
                 System.out.print("Escolha uma das opçoes acima: ");
                 int opcao = sc.nextInt();
 
                 switch (opcao) {
                     case 1:
                         System.out.println("Informações da conta:");
-                        System.out.println("Nome: " + contas.get(idLogado).getNome());
-                        System.out.println("CPF: " + contas.get(idLogado).getCpf());
-                        System.out.println("Id: " + contas.get(idLogado).getId());
+                        System.out.println("Nome: " + contas.get(indiceLogado).getNome());
+                        System.out.println("CPF: " + contas.get(indiceLogado).getCpf());
+                        System.out.println("Id: " + contas.get(indiceLogado).getId());
                         break;
 
                     case 2:
-                        System.out.println("O Seu saldo atual é: R$ " + contas.get(idLogado).consultarSaldo());
+                        System.out.println("O Seu saldo atual é: R$ " + contas.get(indiceLogado).consultarSaldo());
                         break;
 
                     case 3:
                         System.out.print("Digite o valor que deseja depositar: ");
                         double valorDeposito = sc.nextDouble();
 
-                        if (contas.get(idLogado).podeDepositar(valorDeposito)) {
-                            contas.get(idLogado).depositar(valorDeposito);
+                        if (contas.get(indiceLogado).podeDepositar(valorDeposito)) {
+                            contas.get(indiceLogado).depositar(valorDeposito);
                             System.out.println("Deposito efetuado com sucesso!");
                         } else {
                             System.out.println("Deposito não efetuado.");
@@ -123,8 +129,8 @@ public class Program {
                     case 4:
                         System.out.print("Digite o valor que deseja sacar: R$ ");
                         double valorSaque = sc.nextDouble();
-                        if (contas.get(idLogado).podeSacar(valorSaque)) {
-                            contas.get(idLogado).sacar(valorSaque);
+                        if (contas.get(indiceLogado).podeSacar(valorSaque)) {
+                            contas.get(indiceLogado).sacar(valorSaque);
                             System.out.println("Saque efetuado com sucesso!");
                         } else {
                             System.out.println("Erro no saque!");
@@ -136,8 +142,8 @@ public class Program {
                         int id = sc.nextInt();
                         System.out.print("Digite o valor que deseja transferir: ");
                         double valorTransferencia = sc.nextDouble();
-                        if (contas.get(idLogado).podeTransferir(id, valorTransferencia, contas)) {
-                            contas.get(idLogado).transferir(id, valorTransferencia, contas);
+                        if (contas.get(indiceLogado).podeTransferir(id, valorTransferencia, contas)) {
+                            contas.get(indiceLogado).transferir(id, valorTransferencia, contas, transferencias, idTransferencias++);
                             System.out.println("Transferencia efetuada. ");
                         } else {
                             System.out.println("Erro na transferencia.");
@@ -145,10 +151,27 @@ public class Program {
                         break;
 
                     case 6:
-                        System.out.println("Saindo da conta...");
-                        idLogado = -1;
+                        System.out.println("Suas Transferencias: ");
+                        boolean encontrou = false;
+
+                        for (int i = 0; i < idTransferencias; i++) {
+                            System.out.println();
+                            if (transferencias.get(i).getIdPagante() == contas.get(indiceLogado).getId() ) {
+                                System.out.println(transferencias.get(i));
+                                encontrou = true;
+                            }
+                        }
+                        if (!encontrou) {
+                            System.out.println("Nenhuma transferência no seu nome.");
+                        }
                         break;
+
                     case 7:
+                        System.out.println("Saindo da conta...");
+                        indiceLogado = -1;
+                        break;
+
+                    case 8:
                         System.out.println("Realmente deseja excluir a conta?");
                         System.out.println("1 - Sim");
                         System.out.println("2 - Não");
@@ -156,9 +179,9 @@ public class Program {
                         int opcaoExcluir = sc.nextInt();
                         switch (opcaoExcluir) {
                             case 1:
-                                contas.remove(idLogado);
+                                contas.remove(indiceLogado);
                                 System.out.println("Conta Excluida");
-                                idLogado = -1;
+                                indiceLogado = -1;
                                 break;
 
                             case 2:
